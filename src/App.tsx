@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import reactLogo from './assets/react.svg';
 import './App.css';
 
 import { HuddleClientProvider, getHuddleClient, useRootStore } from '@huddle01/huddle01-client';
@@ -16,7 +15,7 @@ function App() {
   const lobbyPeers = useRootStore((state) => state.lobbyPeers);
   const roomState = useRootStore((state) => state.roomState);
   const isHost = huddleClient.hostId === peerId;
-
+  const chat = useRootStore((state) => state.chat);
   const [roomName, setRoomName] = useState('');
   const handleJoin = async (roomId: string) => {
     try {
@@ -46,7 +45,7 @@ function App() {
 
   return (
     <HuddleClientProvider value={huddleClient}>
-      <h2 className={`text-${!roomState.joined ? 'red' : 'green'}`}>
+      <h2 className={`head text-${!roomState.joined ? 'red' : 'green'}`}>
         Room Joined:&nbsp;{roomState.joined ? roomState.roomId : 'Not Joined'}
       </h2>
       {!roomState.joined && (
@@ -65,23 +64,51 @@ function App() {
           <button onClick={() => handleJoin(roomName)}>Join Room</button>
         </div>
       )}
-
-      <div>
-        {!isCamPaused && <video style={{ width: '50%' }} ref={videoRef} autoPlay muted></video>}
-
-        {lobbyPeers[0] && <h2>Lobby Peers</h2>}
+      <div className="grid grid-cols-2">
         <div>
-          {lobbyPeers.map((peer) => (
-            <div>{peer.peerId}</div>
-          ))}
+          {!isCamPaused && <video style={{ width: '50%' }} ref={videoRef} autoPlay muted></video>}
+
+          {lobbyPeers[0] && <h2>Lobby Peers</h2>}
+          <div>
+            {lobbyPeers.map((peer) => (
+              <div>{peer.peerId}</div>
+            ))}
+          </div>
+
+          {Object.values(peers)[0] && <h2>Peers</h2>}
+
+          <div className="peers-grid">
+            {Object.values(peers).map((peer) => (
+              <PeerVideoAudioElem peerIdAtIndex={peer.peerId} />
+            ))}
+          </div>
         </div>
-
-        {Object.values(peers)[0] && <h2>Peers</h2>}
-
-        <div className="peers-grid">
-          {Object.values(peers).map((peer) => (
-            <PeerVideoAudioElem peerIdAtIndex={peer.peerId} />
-          ))}
+        <div>
+          {roomState.joined && (
+            <>
+              <h2 className={`text-pink`}>Main Room Chat</h2>
+              <div className="chat">
+                {chat.mainRoom.map((data) => (
+                  <div className="message">
+                    <div className="message-sender">{data.peerId}</div>
+                    <div className="message-content">{data.message}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="chat-input">
+                <input
+                  type="text"
+                  placeholder="Enter Message"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      huddleClient.sendDM(e.target.value, 'mainRoom', peerId);
+                      e.target.value = '';
+                    }
+                  }}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
       <div className="btm-bar">
