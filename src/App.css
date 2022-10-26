@@ -23,6 +23,19 @@
   width: 100%;
   place-items: center;
 }
+.btm-bar {
+  margin: auto;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: fixed;
+  bottom: 0;
+  left: 30%;
+}
+
+.btm-bar button{
+margin-right: 2rem;
+}
 
 .w-fit {
   width: fit-content;
@@ -54,8 +67,11 @@ ol {
 
 .grid-cols-2 {
   grid-template-columns: 1fr 1fr;
+  
 }
-
+.grid-cols-2 input{
+  margin-right: 2rem;
+}
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
